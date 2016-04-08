@@ -11,7 +11,9 @@ cd $s2
 git config --global user.name "$s1"
 git config --global user.email "$s3"
 git remote -v
+echo ""
 echo "now add all the new files!"
+echo ""
 read -p "Press [Enter]"
 git add *
 git status -s
