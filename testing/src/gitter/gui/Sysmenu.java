@@ -333,9 +333,10 @@ public class sysmenu extends javax.swing.JFrame
     {//GEN-FIRST:event_jButton3ActionPerformed
      // Push
         shell(term + " git config --global user.name \"" + user + "\"");
-        shell(term + " git config --global user.email \"" + user + "\"");
+        shell(term + " git config --global user.email \"" + user + "\""); 
         shell(term + " git -C " + repo + " remote -v");
-        shell(term + " git -C " + repo + " commit -all -m '" + JOptionPane.showInputDialog("Commit messige: ") + "'");
+        shell(term + " git -C " + repo + " add *");
+	shell(term + " git -C " + repo + " commit -m '" + JOptionPane.showInputDialog("Commit messige: ") + "'");
         shell(term + " git -C " + repo + " push origin master");
         System.out.println("Ready..");
     }//GEN-LAST:event_jButton3ActionPerformed
