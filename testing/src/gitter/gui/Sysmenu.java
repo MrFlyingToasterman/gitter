@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Random;
 import javax.swing.JOptionPane;
 
@@ -332,14 +333,52 @@ public class sysmenu extends javax.swing.JFrame
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt)
     {//GEN-FIRST:event_jButton3ActionPerformed
      // Push
-        shell(term + " git config --global user.name \"" + user + "\"");
-        shell(term + " git config --global user.email \"" + user + "\""); 
-        shell(term + " git -C " + repo + " remote -v");
-        shell(term + " git -C " + repo + " add *");
-	shell(term + " git -C " + repo + " commit -m '" + JOptionPane.showInputDialog("Commit messige: ") + "'");
-        shell(term + " git -C " + repo + " push origin master");
+        shell("git config --global user.name \"" + user + "\"");
+        shell("git config --global user.email \"" + user + "\"");
+        shell("git -C " + repo + " remote -v");
+        shell("git -C " + repo + " add *");
+        shell(new String[] { "git", "-C", repo, "commit", "-m", JOptionPane.showInputDialog("Commit messige: ") });
+        //shell(new String[] { "xterm", "-hold", "-e", "git", "-C", repo, "push", "origin", "master" });
+        shell(addAll(term.split(" "), new String[] { "git", "-C", repo, "push", "origin", "master" }));
         System.out.println("Ready..");
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    @SafeVarargs
+    public static <T> T[] addAll(T[] array1, T... array2)
+    {
+        if (array1 == null)
+        {
+            return array2 == null ? null : array2.clone();
+        }
+        else if (array2 == null)
+        {
+            return array1 == null ? null : array1.clone();
+        }
+        final Class<?> type1 = array1.getClass().getComponentType();
+        @SuppressWarnings("unchecked") // OK, because array is of type T
+        T[] joinedArray = (T[]) Array.newInstance(type1, array1.length + array2.length);
+        System.arraycopy(array1, 0, joinedArray, 0, array1.length);
+        try
+        {
+            System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
+        }
+        catch (ArrayStoreException ase)
+        {
+            // Check if problem was due to incompatible types
+            /*
+             * We do this here, rather than before the copy because:
+             * - it would be a wasted check most of the time
+             * - safer, in case check turns out to be too strict
+             */
+            final Class<?> type2 = array2.getClass().getComponentType();
+            if (!type1.isAssignableFrom(type2))
+            {
+                throw new IllegalArgumentException("Cannot store " + type2.getName() + " in an array of " + type1.getName(), ase);
+            }
+            throw ase; // No, so rethrow original
+        }
+        return joinedArray;
+    }
 
     public static void shell(String eingabe)
     {
@@ -349,7 +388,21 @@ public class sysmenu extends javax.swing.JFrame
             p = Runtime.getRuntime().exec(eingabe);
             p.waitFor();
             p.destroy();
-            // p.destroy();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static void shell(String[] input)
+    {
+        try
+        {
+            Process p;
+            p = Runtime.getRuntime().exec(input);
+            p.waitFor();
+            p.destroy();
         }
         catch (Exception e)
         {
